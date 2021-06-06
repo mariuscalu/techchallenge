@@ -10,3 +10,4 @@ The second part is the presentation layer of the solution which reads the files 
 * Use/Build a cache system to reuse the computed values for previous requests, for the case multiple files are ingested, cache invalidation might be a bit challenging
 * Precompute some values for the popularity endpoint to avoid the computation on the fly, the reason I didn't do it is because I don't know the frequency of the input files, for the case multiple files come at once this can be a challenging topic for Apache Spark
 ## Flow Diagram
+![Flow Diagram](/images/algolia.png)
