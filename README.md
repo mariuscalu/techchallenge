@@ -1,1 +1,12 @@
-# techchallenge
+# Technical Challenge
+## Description
+The idea behind my solution is to precompute the count for each minute and also to keep all the queries, fired in a one minute window, in the same file, this helps the search microservice to speed up the response time, especially for more granular requests, due to the fact that I can't use any storage system or external software, I wanted to avoid the memory issue that I could have if I loaded the whole file into the memory of the microservice, also if I opened and read it for each request the performace cost would be significant considering the size of the file, not too mention the case when there are multiple files.
+I split my solution into two parts as you can see below.
+## Ingestion
+The first part is the ingestion part which reads the file and it partition by minutes the queries and also it computes the count for each minute, then it saves the partition as CSV files in a TREE structure, the root value is the YEAR folder, then subfolders MONTH, each MONTH folder has DAY subfolders, each DAY folder has HOUR subfolders, each HOUR folder has MINUTE subfolders. For the ingestion layer I used Apache Spark because I wanted to process the TSV file(s) as fast as possible and I think that Apache Spark is the best framework for this job due to how it process big datasets in parallel.
+## Search Microservice
+The second part is the presentation layer of the solution which reads the files and if necessary, it also does some computations like sum all the counts or aggregations for the popularity in order to get top X queries by count. For instance, If a request come for count endpoint for a date like 2015-08-03, it first goes to the Day 3 folder and then it starts to recursively read all the files in the Hour and Minute subfolders, then it sums all the values that it read from the files and it returns the response to the user. For this layer I used Akka because I wanted to do all those computations, like sum for counts or aggregation for popularity, in an async manner and for this job Akka is the best due to the fact that it implements the Actor Model and for each request I can have on of the actors from the pool to do all the work in an async way without blocking the main thread.
+## Possible Enhancements
+* Use/Build a cache system to reuse the computed values for previous requests, for the case multiple files are ingested, cache invalidation might be a bit challenging
+* Precompute some values for the popularity endpoint to avoid the computation on the fly, the reason I didn't do it is because I don't know the frequency of the input files, for the case multiple files come at once this can be a challenging topic for Apache Spark
+## Flow Diagram
